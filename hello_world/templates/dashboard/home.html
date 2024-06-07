@@ -1,13 +1,100 @@
-<!-- pages/templates/pages/home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .price-container {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+            display: block;
+        }
+        .price-container:hover {
+            transform: scale(1.05);
+        }
+        .bitcoin-price, .bitcoin-price-last-year {
+            font-size: 2.5em;
+            color: #ff9900;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        p, h3 {
+            color: #555;
+        }
+        .refresh-time {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .price-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Home Page</h1>
-    <p>This is a basic HTML page in a Django project.</p>
-    <h3>Hello World</h3>
+    <div class="container">
+        <h1>Welcome to the Home Page</h1>
+        <div class="price-container">
+            <div class="price-title">Current Bitcoin Price:</div>
+            <div class="bitcoin-price">$<span id="bitcoin-price">{{ bitcoin_price }}</span></div>
+            <div class="refresh-time" id="refresh-time"></div>
+        </div>
+        <div class="price-container">
+            <div class="price-title">Bitcoin Price Last Year:</div>
+            <div class="bitcoin-price-last-year">$<span id="bitcoin-price-last-year">{{ bitcoin_price_last_year }}</span></div>
+            <div class="refresh-time-last-year" id="refresh-time-last-year"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function fetchBitcoinPrice() {
+                fetch('/api/bitcoin-price/')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('bitcoin-price').innerText = data.price;
+                        document.getElementById('refresh-time').innerText = 'Last updated: ' + new Date().toLocaleTimeString();
+                    });
+            }
+
+            function fetchBitcoinPriceLastYear() {
+                fetch('/api/bitcoin-price-last-year/')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('bitcoin-price-last-year').innerText = data.price_last_year;
+                        document.getElementById('refresh-time-last-year').innerText = 'Last updated: ' + new Date().toLocaleTimeString();
+                    });
+            }
+
+            fetchBitcoinPrice();
+            fetchBitcoinPriceLastYear();
+            setInterval(fetchBitcoinPrice, 300000); // Refresh every 5 minutes (300,000 milliseconds)
+            setInterval(fetchBitcoinPriceLastYear, 300000); // Refresh every 5 minutes (300,000 milliseconds)
+        });
+    </script>
 </body>
 </html>
